@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reistijd Calculator - Nederland</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .distance-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .distance-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .distance-info strong {
+            color: #333;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .result h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .result p {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .result .time {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+
+        .result .ov-time {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 10px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .result .details {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .error {
+            background: #fee;
+            border: 2px solid #fcc;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Reistijd Calculator</h1>
+        
+        <div class="form-group">
+            <label for="vervoer">Vervoerswijze:</label>
+            <select id="vervoer">
+                <option value="auto">🚗 Auto (snelweg)</option>
+                <option value="ov">🚆 OV (trein)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="vertrek">Vertrekstad:</label>
+            <select id="vertrek">
+                <option value="">Kies een stad...</option>
+                <option value="amsterdam">Amsterdam</option>
+                <option value="amersfoort">Amersfoort</option>
+                <option value="rotterdam">Rotterdam</option>
+                <option value="den-haag">Den Haag</option>
+                <option value="utrecht">Utrecht</option>
+                <option value="eindhoven">Eindhoven</option>
+                <option value="tilburg">Tilburg</option>
+                <option value="groningen">Groningen</option>
+                <option value="leeuwarden">Leeuwarden</option>
+                <option value="maastricht">Maastricht</option>
+                <option value="nijmegen">Nijmegen</option>
+                <option value="enschede">Enschede</option>
+                <option value="apeldoorn">Apeldoorn</option>
+                <option value="arnhem">Arnhem</option>
+                <option value="zutphen">Zutphen</option>
+                <option value="deventer">Deventer</option>
+                <option value="almere">Almere</option>
+                <option value="haarlem">Haarlem</option>
+                <option value="leiden">Leiden</option>
+                <option value="dordrecht">Dordrecht</option>
+                <option value="zoetermeer">Zoetermeer</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="bestemming">Bestemming:</label>
+            <select id="bestemming">
+                <option value="">Kies een stad...</option>
+                <option value="amsterdam">Amsterdam</option>
+                <option value="amersfoort">Amersfoort</option>
+                <option value="rotterdam">Rotterdam</option>
+                <option value="den-haag">Den Haag</option>
+                <option value="utrecht">Utrecht</option>
+                <option value="eindhoven">Eindhoven</option>
+                <option value="tilburg">Tilburg</option>
+                <option value="groningen">Groningen</option>
+                <option value="leeuwarden">Leeuwarden</option>
+                <option value="maastricht">Maastricht</option>
+                <option value="nijmegen">Nijmegen</option>
+                <option value="enschede">Enschede</option>
+                <option value="apeldoorn">Apeldoorn</option>
+                <option value="arnhem">Arnhem</option>
+                <option value="zutphen">Zutphen</option>
+                <option value="deventer">Deventer</option>
+                <option value="almere">Almere</option>
+                <option value="haarlem">Haarlem</option>
+                <option value="leiden">Leiden</option>
+                <option value="dordrecht">Dordrecht</option>
+                <option value="zoetermeer">Zoetermeer</option>
+            </select>
+        </div>
+
+        <div class="distance-info" id="distanceInfo" style="display: none;">
+            <p id="afstandText">Afstand: <strong id="afstand">0</strong> km</p>
+        </div>
+
+        <div class="distance-info" id="ovInfo" style="display: none;">
+            <p>OV Reistijd: <strong id="ovTijd">0 uur 0 min</strong></p>
+            <p style="font-size: 12px; color: #888;">Gebaseerd op gemiddelde OV verbindingen</p>
+        </div>
+
+        <button onclick="berekenReistijd()">Bereken Reistijd</button>
+
+        <div class="error" id="error"></div>
+
+        <div class="result" id="result">
+            <h2>Reistijd</h2>
+            <p>Van <span id="vanStad"></span> naar <span id="naarStad"></span></p>
+            <div class="time" id="reistijd">0 uur 0 min</div>
+            <div class="ov-time" id="ovTijdDisplay" style="display: none;">OV: <span id="ovTijd">0 uur 0 min</span></div>
+            <p class="details" id="details"></p>
+        </div>
+    </div>
+
+    <script>
+        // Gemiddelde afstanden tussen steden in km (snelweg)
+        const afstanden = {
+            amsterdam: {
+                amsterdam: 0, amersfoort: 35, rotterdam: 75, 'den-haag': 80, utrecht: 45,
+                eindhoven: 110, tilburg: 120, groningen: 260, leeuwarden: 220,
+                maastricht: 220, nijmegen: 90, enschede: 160, apeldoorn: 80,
+                arnhem: 85, zutphen: 100, deventer: 110, almere: 30,
+                haarlem: 25, leiden: 60, dordrecht: 70, zoetermeer: 75
+            },
+            rotterdam: {
+                amsterdam: 75, amersfoort: 70, rotterdam: 0, 'den-haag': 35, utrecht: 50,
+                eindhoven: 65, tilburg: 40, groningen: 320, leeuwarden: 280,
+                maastricht: 160, nijmegen: 95, enschede: 210, apeldoorn: 120,
+                arnhem: 110, zutphen: 130, deventer: 130, almere: 85,
+                haarlem: 80, leiden: 45, dordrecht: 30, zoetermeer: 50
+            },
+            'den-haag': {
+                amsterdam: 80, amersfoort: 65, rotterdam: 35, 'den-haag': 0, utrecht: 60,
+                eindhoven: 100, tilburg: 65, groningen: 330, leeuwarden: 290,
+                maastricht: 180, nijmegen: 110, enschede: 220, apeldoorn: 130,
+                arnhem: 120, zutphen: 140, deventer: 140, almere: 90,
+                haarlem: 75, leiden: 25, dordrecht: 45, zoetermeer: 20
+            },
+            utrecht: {
+                amsterdam: 45, amersfoort: 30, rotterdam: 50, 'den-haag': 60, utrecht: 0,
+                eindhoven: 70, tilburg: 60, groningen: 280, leeuwarden: 240,
+                maastricht: 170, nijmegen: 50, enschede: 170, apeldoorn: 60,
+                arnhem: 55, zutphen: 75, deventer: 70, almere: 60,
+                haarlem: 50, leiden: 55, dordrecht: 65, zoetermeer: 65
+            },
+            eindhoven: {
+                amsterdam: 110, amersfoort: 85, rotterdam: 65, 'den-haag': 100, utrecht: 70,
+                eindhoven: 0, tilburg: 30, groningen: 330, leeuwarden: 290,
+                maastricht: 90, nijmegen: 90, enschede: 180, apeldoorn: 110,
+                arnhem: 100, zutphen: 120, deventer: 120, almere: 120,
+                haarlem: 110, leiden: 95, dordrecht: 75, zoetermeer: 100
+            },
+            tilburg: {
+                amsterdam: 120, amersfoort: 85, rotterdam: 40, 'den-haag': 65, utrecht: 60,
+                eindhoven: 30, tilburg: 0, groningen: 310, leeuwarden: 270,
+                maastricht: 80, nijmegen: 80, enschede: 170, apeldoorn: 100,
+                arnhem: 90, zutphen: 110, deventer: 110, almere: 100,
+                haarlem: 100, leiden: 65, dordrecht: 50, zoetermeer: 70
+            },
+            groningen: {
+                amsterdam: 260, amersfoort: 180, rotterdam: 320, 'den-haag': 330, utrecht: 280,
+                eindhoven: 330, tilburg: 310, groningen: 0, leeuwarden: 60,
+                maastricht: 380, nijmegen: 290, enschede: 160, apeldoorn: 240,
+                arnhem: 250, zutphen: 260, deventer: 220, almere: 270,
+                haarlem: 270, leiden: 310, dordrecht: 320, zoetermeer: 330
+            },
+            leeuwarden: {
+                amsterdam: 220, amersfoort: 160, rotterdam: 280, 'den-haag': 290, utrecht: 240,
+                eindhoven: 290, tilburg: 270, groningen: 60, leeuwarden: 0,
+                maastricht: 340, nijmegen: 250, enschede: 180, apeldoorn: 200,
+                arnhem: 210, zutphen: 220, deventer: 180, almere: 230,
+                haarlem: 230, leiden: 270, dordrecht: 280, zoetermeer: 290
+            },
+            maastricht: {
+                amsterdam: 220, amersfoort: 160, rotterdam: 160, 'den-haag': 180, utrecht: 170,
+                eindhoven: 90, tilburg: 80, groningen: 380, leeuwarden: 340,
+                maastricht: 0, nijmegen: 140, enschede: 190, apeldoorn: 180,
+                arnhem: 170, zutphen: 190, deventer: 190, almere: 230,
+                haarlem: 220, leiden: 170, dordrecht: 160, zoetermeer: 180
+            },
+            nijmegen: {
+                amsterdam: 90, amersfoort: 60, rotterdam: 95, 'den-haag': 110, utrecht: 50,
+                eindhoven: 90, tilburg: 80, groningen: 290, leeuwarden: 250,
+                maastricht: 140, nijmegen: 0, enschede: 100, apeldoorn: 50,
+                arnhem: 40, zutphen: 60, deventer: 60, almere: 100,
+                haarlem: 90, leiden: 90, dordrecht: 85, zoetermeer: 100
+            },
+            enschede: {
+                amsterdam: 160, amersfoort: 100, rotterdam: 210, 'den-haag': 220, utrecht: 170,
+                eindhoven: 180, tilburg: 170, groningen: 160, leeuwarden: 180,
+                maastricht: 190, nijmegen: 100, enschede: 0, apeldoorn: 90,
+                arnhem: 100, zutphen: 80, deventer: 60, almere: 170,
+                haarlem: 160, leiden: 200, dordrecht: 210, zoetermeer: 220
+            },
+            apeldoorn: {
+                amsterdam: 80, amersfoort: 45, rotterdam: 120, 'den-haag': 130, utrecht: 60,
+                eindhoven: 110, tilburg: 100, groningen: 240, leeuwarden: 200,
+                maastricht: 180, nijmegen: 50, enschede: 90, apeldoorn: 0,
+                arnhem: 30, zutphen: 40, deventer: 50, almere: 90,
+                haarlem: 80, leiden: 110, dordrecht: 120, zoetermeer: 130
+            },
+            amersfoort: {
+                amsterdam: 35, amersfoort: 0, rotterdam: 70, 'den-haag': 65, utrecht: 30,
+                eindhoven: 85, tilburg: 85, groningen: 180, leeuwarden: 160,
+                maastricht: 160, nijmegen: 60, enschede: 100, apeldoorn: 45,
+                arnhem: 55, zutphen: 65, deventer: 60, almere: 55,
+                haarlem: 40, leiden: 60, dordrecht: 70, zoetermeer: 65
+            },
+            arnhem: {
+                amsterdam: 85, amersfoort: 55, rotterdam: 110, 'den-haag': 120, utrecht: 55,
+                eindhoven: 100, tilburg: 90, groningen: 250, leeuwarden: 210,
+                maastricht: 170, nijmegen: 40, enschede: 100, apeldoorn: 30,
+                arnhem: 0, zutphen: 50, deventer: 60, almere: 95,
+                haarlem: 85, leiden: 100, dordrecht: 95, zoetermeer: 110
+            },
+            zutphen: {
+                amsterdam: 100, amersfoort: 65, rotterdam: 130, 'den-haag': 140, utrecht: 75,
+                eindhoven: 120, tilburg: 110, groningen: 260, leeuwarden: 220,
+                maastricht: 190, nijmegen: 60, enschede: 80, apeldoorn: 40,
+                arnhem: 50, zutphen: 0, deventer: 40, almere: 110,
+                haarlem: 100, leiden: 120, dordrecht: 130, zoetermeer: 140
+            },
+            deventer: {
+                amsterdam: 110, rotterdam: 130, 'den-haag': 140, utrecht: 70,
+                eindhoven: 120, tilburg: 110, groningen: 220, leeuwarden: 180,
+                maastricht: 190, nijmegen: 60, enschede: 60, apeldoorn: 50,
+                arnhem: 60, zutphen: 40, deventer: 0, almere: 120,
+                haarlem: 110, leiden: 130, dordrecht: 130, zoetermeer: 140
+            },
+            almere: {
+                amsterdam: 30, rotterdam: 85, 'den-haag': 90, utrecht: 60,
+                eindhoven: 120, tilburg: 100, groningen: 270, leeuwarden: 230,
+                maastricht: 230, nijmegen: 100, enschede: 170, apeldoorn: 90,
+                arnhem: 95, zutphen: 110, deventer: 120, almere: 0,
+                haarlem: 35, leiden: 70, dordrecht: 80, zoetermeer: 85
+            },
+            haarlem: {
+                amsterdam: 25, rotterdam: 80, 'den-haag': 75, utrecht: 50,
+                eindhoven: 110, tilburg: 100, groningen: 270, leeuwarden: 230,
+                maastricht: 220, nijmegen: 90, enschede: 160, apeldoorn: 80,
+                arnhem: 85, zutphen: 100, deventer: 110, almere: 35,
+                haarlem: 0, leiden: 45, dordrecht: 70, zoetermeer: 75
+            },
+            leiden: {
+                amsterdam: 60, rotterdam: 45, 'den-haag': 25, utrecht: 55,
+                eindhoven: 95, tilburg: 65, groningen: 310, leeuwarden: 270,
+                maastricht: 170, nijmegen: 90, enschede: 200, apeldoorn: 110,
+                arnhem: 100, zutphen: 120, deventer: 130, almere: 70,
+                haarlem: 45, leiden: 0, dordrecht: 40, zoetermeer: 45
+            },
+            dordrecht: {
+                amsterdam: 70, rotterdam: 30, 'den-haag': 45, utrecht: 65,
+                eindhoven: 75, tilburg: 50, groningen: 320, leeuwarden: 280,
+                maastricht: 160, nijmegen: 85, enschede: 210, apeldoorn: 120,
+                arnhem: 95, zutphen: 130, deventer: 130, almere: 80,
+                haarlem: 70, leiden: 40, dordrecht: 0, zoetermeer: 50
+            },
+            zoetermeer: {
+                amsterdam: 75, rotterdam: 50, 'den-haag': 20, utrecht: 65,
+                eindhoven: 100, tilburg: 70, groningen: 330, leeuwarden: 290,
+                maastricht: 180, nijmegen: 100, enschede: 220, apeldoorn: 130,
+                arnhem: 110, zutphen: 140, deventer: 140, almere: 85,
+                haarlem: 75, leiden: 45, dordrecht: 50, zoetermeer: 0
+            }
+        };
+
+        const stedenNaam = {
+            amsterdam: 'Amsterdam', amersfoort: 'Amersfoort', rotterdam: 'Rotterdam', 'den-haag': 'Den Haag',
+            utrecht: 'Utrecht', eindhoven: 'Eindhoven', tilburg: 'Tilburg',
+            groningen: 'Groningen', leeuwarden: 'Leeuwarden', maastricht: 'Maastricht',
+            nijmegen: 'Nijmegen', enschede: 'Enschede', apeldoorn: 'Apeldoorn',
+            arnhem: 'Arnhem', zutphen: 'Zutphen', deventer: 'Deventer',
+            almere: 'Almere', haarlem: 'Haarlem', leiden: 'Leiden',
+            dordrecht: 'Dordrecht', zoetermeer: 'Zoetermeer'
+        };
+
+        // Gemiddelde OV reistijden in minuten (tussen steden)
+        const ovReistijden = {
+            amsterdam: {
+                amsterdam: 0, amersfoort: 25, rotterdam: 55, 'den-haag': 50, utrecht: 30,
+                eindhoven: 75, tilburg: 70, groningen: 140, leeuwarden: 120,
+                maastricht: 130, nijmegen: 50, enschede: 90, apeldoorn: 60,
+                arnhem: 55, zutphen: 70, deventer: 65, almere: 25,
+                haarlem: 20, leiden: 40, dordrecht: 50, zoetermeer: 45
+            },
+            rotterdam: {
+                amsterdam: 55, amersfoort: 55, rotterdam: 0, 'den-haag': 30, utrecht: 35,
+                eindhoven: 50, tilburg: 40, groningen: 160, leeuwarden: 140,
+                maastricht: 100, nijmegen: 55, enschede: 110, apeldoorn: 80,
+                arnhem: 70, zutphen: 85, deventer: 80, almere: 60,
+                haarlem: 50, leiden: 30, dordrecht: 25, zoetermeer: 35
+            },
+            'den-haag': {
+                amsterdam: 50, amersfoort: 45, rotterdam: 30, 'den-haag': 0, utrecht: 40,
+                eindhoven: 65, tilburg: 45, groningen: 170, leeuwarden: 150,
+                maastricht: 110, nijmegen: 65, enschede: 120, apeldoorn: 90,
+                arnhem: 80, zutphen: 95, deventer: 90, almere: 55,
+                haarlem: 45, leiden: 20, dordrecht: 30, zoetermeer: 25
+            },
+            utrecht: {
+                amsterdam: 30, amersfoort: 25, rotterdam: 35, 'den-haag': 40, utrecht: 0,
+                eindhoven: 50, tilburg: 45, groningen: 130, leeuwarden: 110,
+                maastricht: 90, nijmegen: 30, enschede: 95, apeldoorn: 40,
+                arnhem: 35, zutphen: 45, deventer: 40, almere: 35,
+                haarlem: 30, leiden: 35, dordrecht: 40, zoetermeer: 40
+            },
+            eindhoven: {
+                amsterdam: 75, amersfoort: 65, rotterdam: 50, 'den-haag': 65, utrecht: 50,
+                eindhoven: 0, tilburg: 30, groningen: 180, leeuwarden: 160,
+                maastricht: 60, nijmegen: 55, enschede: 100, apeldoorn: 70,
+                arnhem: 60, zutphen: 75, deventer: 70, almere: 80,
+                haarlem: 70, leiden: 60, dordrecht: 50, zoetermeer: 65
+            },
+            tilburg: {
+                amsterdam: 70, amersfoort: 65, rotterdam: 40, 'den-haag': 45, utrecht: 45,
+                eindhoven: 30, tilburg: 0, groningen: 170, leeuwarden: 150,
+                maastricht: 50, nijmegen: 50, enschede: 95, apeldoorn: 65,
+                arnhem: 55, zutphen: 70, deventer: 65, almere: 70,
+                haarlem: 65, leiden: 45, dordrecht: 35, zoetermeer: 50
+            },
+            groningen: {
+                amsterdam: 140, amersfoort: 110, rotterdam: 160, 'den-haag': 170, utrecht: 130,
+                eindhoven: 180, tilburg: 170, groningen: 0, leeuwarden: 40,
+                maastricht: 200, nijmegen: 140, enschede: 100, apeldoorn: 120,
+                arnhem: 130, zutphen: 130, deventer: 110, almere: 145,
+                haarlem: 140, leiden: 160, dordrecht: 160, zoetermeer: 170
+            },
+            leeuwarden: {
+                amsterdam: 120, amersfoort: 95, rotterdam: 140, 'den-haag': 150, utrecht: 110,
+                eindhoven: 160, tilburg: 150, groningen: 40, leeuwarden: 0,
+                maastricht: 180, nijmegen: 120, enschede: 90, apeldoorn: 100,
+                arnhem: 110, zutphen: 100, deventer: 90, almere: 125,
+                haarlem: 120, leiden: 140, dordrecht: 140, zoetermeer: 150
+            },
+            maastricht: {
+                amsterdam: 130, amersfoort: 100, rotterdam: 100, 'den-haag': 110, utrecht: 90,
+                eindhoven: 60, tilburg: 50, groningen: 200, leeuwarden: 180,
+                maastricht: 0, nijmegen: 80, enschede: 110, apeldoorn: 100,
+                arnhem: 90, zutphen: 100, deventer: 95, almere: 135,
+                haarlem: 120, leiden: 100, dordrecht: 90, zoetermeer: 110
+            },
+            nijmegen: {
+                amsterdam: 50, amersfoort: 45, rotterdam: 55, 'den-haag': 65, utrecht: 30,
+                eindhoven: 55, tilburg: 50, groningen: 140, leeuwarden: 120,
+                maastricht: 80, nijmegen: 0, enschede: 60, apeldoorn: 35,
+                arnhem: 30, zutphen: 40, deventer: 35, almere: 55,
+                haarlem: 50, leiden: 55, dordrecht: 50, zoetermeer: 60
+            },
+            enschede: {
+                amsterdam: 90, amersfoort: 70, rotterdam: 110, 'den-haag': 120, utrecht: 95,
+                eindhoven: 100, tilburg: 95, groningen: 100, leeuwarden: 90,
+                maastricht: 110, nijmegen: 60, enschede: 0, apeldoorn: 55,
+                arnhem: 60, zutphen: 50, deventer: 40, almere: 95,
+                haarlem: 90, leiden: 110, dordrecht: 110, zoetermeer: 120
+            },
+            apeldoorn: {
+                amsterdam: 60, amersfoort: 35, rotterdam: 80, 'den-haag': 90, utrecht: 40,
+                eindhoven: 70, tilburg: 65, groningen: 120, leeuwarden: 100,
+                maastricht: 100, nijmegen: 35, enschede: 55, apeldoorn: 0,
+                arnhem: 25, zutphen: 30, deventer: 30, almere: 65,
+                haarlem: 60, leiden: 75, dordrecht: 80, zoetermeer: 90
+            },
+            arnhem: {
+                amsterdam: 55, amersfoort: 40, rotterdam: 70, 'den-haag': 80, utrecht: 35,
+                eindhoven: 60, tilburg: 55, groningen: 130, leeuwarden: 110,
+                maastricht: 90, nijmegen: 30, enschede: 60, apeldoorn: 25,
+                arnhem: 0, zutphen: 35, deventer: 35, almere: 60,
+                haarlem: 55, leiden: 65, dordrecht: 60, zoetermeer: 75
+            },
+            zutphen: {
+                amsterdam: 70, amersfoort: 50, rotterdam: 85, 'den-haag': 95, utrecht: 45,
+                eindhoven: 75, tilburg: 70, groningen: 130, leeuwarden: 100,
+                maastricht: 100, nijmegen: 40, enschede: 50, apeldoorn: 30,
+                arnhem: 35, zutphen: 0, deventer: 25, almere: 75,
+                haarlem: 70, leiden: 80, dordrecht: 80, zoetermeer: 90
+            },
+            deventer: {
+                amsterdam: 65, amersfoort: 45, rotterdam: 80, 'den-haag': 90, utrecht: 40,
+                eindhoven: 70, tilburg: 65, groningen: 110, leeuwarden: 90,
+                maastricht: 95, nijmegen: 35, enschede: 40, apeldoorn: 30,
+                arnhem: 35, zutphen: 25, deventer: 0, almere: 70,
+                haarlem: 65, leiden: 75, dordrecht: 75, zoetermeer: 85
+            },
+            almere: {
+                amsterdam: 25, amersfoort: 40, rotterdam: 60, 'den-haag': 55, utrecht: 35,
+                eindhoven: 80, tilburg: 70, groningen: 145, leeuwarden: 125,
+                maastricht: 135, nijmegen: 55, enschede: 95, apeldoorn: 65,
+                arnhem: 60, zutphen: 75, deventer: 70, almere: 0,
+                haarlem: 25, leiden: 50, dordrecht: 55, zoetermeer: 55
+            },
+            haarlem: {
+                amsterdam: 20, amersfoort: 35, rotterdam: 50, 'den-haag': 45, utrecht: 30,
+                eindhoven: 70, tilburg: 65, groningen: 140, leeuwarden: 120,
+                maastricht: 120, nijmegen: 50, enschede: 90, apeldoorn: 60,
+                arnhem: 55, zutphen: 70, deventer: 65, almere: 25,
+                haarlem: 0, leiden: 35, dordrecht: 45, zoetermeer: 45
+            },
+            leiden: {
+                amsterdam: 40, amersfoort: 50, rotterdam: 30, 'den-haag': 20, utrecht: 35,
+                eindhoven: 60, tilburg: 45, groningen: 160, leeuwarden: 140,
+                maastricht: 100, nijmegen: 55, enschede: 110, apeldoorn: 75,
+                arnhem: 65, zutphen: 80, deventer: 75, almere: 50,
+                haarlem: 35, leiden: 0, dordrecht: 30, zoetermeer: 35
+            },
+            dordrecht: {
+                amsterdam: 50, amersfoort: 60, rotterdam: 25, 'den-haag': 30, utrecht: 40,
+                eindhoven: 50, tilburg: 35, groningen: 160, leeuwarden: 140,
+                maastricht: 90, nijmegen: 50, enschede: 110, apeldoorn: 80,
+                arnhem: 60, zutphen: 80, deventer: 75, almere: 55,
+                haarlem: 45, leiden: 30, dordrecht: 0, zoetermeer: 35
+            },
+            zoetermeer: {
+                amsterdam: 45, amersfoort: 55, rotterdam: 35, 'den-haag': 25, utrecht: 40,
+                eindhoven: 65, tilburg: 50, groningen: 170, leeuwarden: 150,
+                maastricht: 110, nijmegen: 60, enschede: 120, apeldoorn: 90,
+                arnhem: 75, zutphen: 90, deventer: 85, almere: 55,
+                haarlem: 45, leiden: 35, dordrecht: 35, zoetermeer: 0
+            },
+            amersfoort: {
+                amsterdam: 25, amersfoort: 0, rotterdam: 55, 'den-haag': 45, utrecht: 25,
+                eindhoven: 65, tilburg: 65, groningen: 110, leeuwarden: 95,
+                maastricht: 100, nijmegen: 45, enschede: 70, apeldoorn: 35,
+                arnhem: 40, zutphen: 50, deventer: 45, almere: 40,
+                haarlem: 35, leiden: 50, dordrecht: 60, zoetermeer: 55
+            }
+        };
+
+        function berekenReistijd() {
+            const vertrek = document.getElementById('vertrek').value;
+            const bestemming = document.getElementById('bestemming').value;
+            const vervoer = document.getElementById('vervoer').value;
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            const distanceInfo = document.getElementById('distanceInfo');
+            const ovInfo = document.getElementById('ovInfo');
+            const ovTijdDisplay = document.getElementById('ovTijdDisplay');
+
+            errorDiv.classList.remove('show');
+            resultDiv.classList.remove('show');
+
+            if (!vertrek || !bestemming) {
+                errorDiv.textContent = 'Selecteer zowel een vertrekstad als een bestemming!';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (vertrek === bestemming) {
+                errorDiv.textContent = 'Vertrekstad en bestemming mogen niet hetzelfde zijn!';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            // Afstand ophalen
+            const afstand = afstanden[vertrek][bestemming];
+            
+            if (vervoer === 'auto') {
+                // Auto reistijd (gemiddelde snelheid 85 km/u op snelweg)
+                const snelheid = 85;
+                const reisTijdInUur = afstand / snelheid;
+                const uren = Math.floor(reisTijdInUur);
+                const minuten = Math.round((reisTijdInUur - uren) * 60);
+
+                document.getElementById('afstandText').textContent = `Afstand: <strong>${afstand}</strong> km`;
+                document.getElementById('reistijd').textContent = `${uren} uur ${minuten} min`;
+                document.getElementById('details').textContent = `Gemiddelde snelheid: ${snelheid} km/u | Afstand: ${afstand} km`;
+                
+                distanceInfo.style.display = 'block';
+                ovInfo.style.display = 'none';
+                ovTijdDisplay.style.display = 'none';
+            } else {
+                // OV reistijd
+                const ovTijdMinuten = ovReistijden[vertrek][bestemming];
+                const uren = Math.floor(ovTijdMinuten / 60);
+                const minuten = ovTijdMinuten % 60;
+
+                document.getElementById('afstandText').textContent = `Afstand: <strong>${afstand}</strong> km`;
+                document.getElementById('reistijd').textContent = `${uren} uur ${minuten} min`;
+                document.getElementById('details').textContent = `OV verbinding met wissels | Gemiddelde snelheid: ~60 km/u`;
+                
+                distanceInfo.style.display = 'block';
+                ovInfo.style.display = 'none';
+                ovTijdDisplay.style.display = 'block';
+                document.getElementById('ovTijd').textContent = `${uren} uur ${minuten} min`;
+            }
+
+            document.getElementById('vanStad').textContent = stedenNaam[vertrek];
+            document.getElementById('naarStad').textContent = stedenNaam[bestemming];
+            
+            resultDiv.classList.add('show');
+        }
+    </script>
+</body>
+</html>
